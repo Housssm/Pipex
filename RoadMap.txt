@@ -1,0 +1,393 @@
+# 📋 Feuille de Route - Projet PIPEX (42)
+
+---
+
+## 🎯 Vue d'ensemble
+
+Le projet **pipex** consiste à recréer le comportement des pipes shell en C en utilisant les appels système Unix. 
+
+**Objectif :** Reproduire cette commande shell
+```bash
+< file1 cmd1 | cmd2 > file2
+```
+
+Avec ton programme : 
+```bash
+./pipex file1 cmd1 cmd2 file2
+```
+
+---
+
+## Phase 1 : Comprendre les concepts (1-2 jours)
+
+### Pourquoi commencer par là ?
+Avant d'écrire une ligne de code, tu dois maîtriser les outils.  Pipex est un projet système, pas algorithmique.
+
+### Actions concrètes
+
+#### 1. Expérimente avec les appels système
+Crée des petits programmes de test : 
+
+- **test_fork.c** : Créer un processus enfant, afficher les PID
+- **test_pipe.c** : Créer un pipe, écrire d'un côté, lire de l'autre
+- **test_dup2.c** :  Rediriger stdin/stdout
+- **test_execve.c** : Exécuter `/bin/ls` avec execve
+
+#### 2. Teste manuellement dans le shell
+```bash
+# Compare les résultats
+< infile grep "hello" | wc -l > outfile
+```
+
+### Ressources
+- `man 2 pipe`
+- `man 2 fork`
+- `man 2 execve`
+- `man 2 dup2`
+- `man 2 wait`
+
+---
+
+## Phase 2 : Architecture et parsing (2-3 jours)
+
+### Pourquoi ? 
+Une bonne architecture évite de tout refaire plus tard. Le parsing est crucial car `cmd1` peut être `"grep -i hello"` (avec des arguments).
+
+### Structure de fichiers suggérée
+
+```
+pipex/
+├── srcs/
+│   ├── main.c
+│   ├── parsing.c       # Parser les commandes et arguments
+│   ├── process.c       # Gestion des fork/exec
+│   ├── pipes.c         # Gestion des pipes
+│   ├── errors.c        # Gestion des erreurs
+│   └── utils.c         # Fonctions utilitaires
+├── includes/
+│   └── pipex.h
+└── Makefile
+```
+
+### Tâches
+
+#### 1. Parser les arguments
+- Vérifier `argc == 5`
+- Séparer les commandes de leurs arguments : `"grep -i test"` → `["grep", "-i", "test", NULL]`
+- **Astuce :** Utilise `ft_split` de ta libft
+
+#### 2. Gérer les paths
+- Chercher les exécutables dans `PATH` (variable d'environnement)
+- Si `cmd1` = `"ls"`, trouver `/bin/ls`
+- **Fonction clé :** `char *get_command_path(char *cmd, char **envp)`
+
+#### 3. Structure de données
+```c
+typedef struct s_pipex {
+    int     pipe_fd[2];
+    char    **cmd1_args;
+    char    **cmd2_args;
+    char    *cmd1_path;
+    char    *cmd2_path;
+    int     infile_fd;
+    int     outfile_fd;
+} t_pipex;
+```
+
+---
+
+## Phase 3 : Implémentation du flux simple (3-4 jours)
+
+### Pourquoi dans cet ordre ?
+On commence par le chemin "happy path" sans gestion d'erreur complexe.
+
+### Logique à implémenter
+
+```
+Parent process
+    │
+    ├─ Ouvrir infile et outfile
+    ├─ Créer pipe[2]
+    │
+    ├─ fork() → Child 1
+    │   │
+    │   ├─ dup2(infile_fd, STDIN)
+    │   ├─ dup2(pipe[1], STDOUT)  # Écrit dans le pipe
+    │   ├─ close(pipe[0])          # Ne lit pas
+    │   └─ execve(cmd1)
+    │
+    ├─ fork() → Child 2
+    │   │
+    │   ├─ dup2(pipe[0], STDIN)    # Lit depuis le pipe
+    │   ├─ dup2(outfile_fd, STDOUT)
+    │   ├─ close(pipe[1])           # N'écrit pas
+    │   └─ execve(cmd2)
+    │
+    └─ wait() × 2  # Attendre les deux enfants
+```
+
+### Points d'attention
+
+- **Fermer les FD inutilisés** : Chaque processus doit fermer les FD qu'il n'utilise pas
+- **Ordre des fork** :  Les deux enfants peuvent être créés dans n'importe quel ordre
+- **`waitpid()` ou `wait()`** : Attendre que les deux enfants se terminent
+
+### Ordre des opérations dans chaque child
+
+1.  Faire les `dup2()` nécessaires
+2. Fermer TOUS les file descriptors (pipe, infile, outfile)
+3. Execve (ne revient jamais si succès)
+
+---
+
+## Phase 4 : Gestion des erreurs (2 jours)
+
+### Pourquoi c'est critique ?
+La moitié des points de pipex viennent de la gestion d'erreur.  Le testeur 42 va essayer de tout casser.
+
+### Erreurs à gérer
+
+#### 1. Fichiers
+- `infile` n'existe pas ou pas de permissions → Message d'erreur mais continue
+- `outfile` ne peut pas être créé → Exit avec erreur
+
+#### 2. Commandes
+- Commande introuvable :  `"commandeinexistante"` → `command not found`
+- Commande sans permission d'exécution
+
+#### 3. Appels système
+- Vérifier TOUS les retours :  `pipe()`, `fork()`, `open()`, `dup2()`
+- Si un échoue : libérer la mémoire et exit proprement
+
+#### 4. Memory leaks
+- Pas de leaks même en cas d'erreur
+- Utilise valgrind : `valgrind --leak-check=full ./pipex ... `
+
+### Code type pour les erreurs
+
+```c
+if (pipe(pipe_fd) == -1)
+    error_exit("pipe failed", data);
+
+if (fork() == -1)
+    error_exit("fork failed", data);
+```
+
+---
+
+## Phase 5 : Tests intensifs (1-2 jours)
+
+### Pourquoi tester autant ?
+Pipex est réputé pour être validé facilement mais échouer au testeur automatique.
+
+### Batterie de tests
+
+```bash
+# Test basique
+./pipex infile "ls -l" "wc -l" outfile
+< infile ls -l | wc -l > expected
+diff outfile expected
+
+# Commande inexistante
+./pipex infile "lolcat" "wc -l" outfile
+
+# Fichier inexistant
+./pipex nofile "cat" "wc -l" outfile
+
+# Permissions
+chmod 000 infile
+./pipex infile "cat" "wc -l" outfile
+
+# Commandes complexes
+./pipex infile "grep a1" "wc -w" outfile
+./pipex Makefile "cat" "cat" out1
+
+# Chemins absolus
+./pipex infile "/bin/ls" "/usr/bin/wc -l" outfile
+
+# Vérifier les codes de retour
+./pipex infile "false" "true" outfile
+echo $?  # Doit correspondre au shell
+```
+
+### Testeurs recommandés
+
+- [pipex_tester](https://github.com/vfurmane/pipex-tester)
+- Moulinette_tester (si dispo dans ton campus)
+- Tests manuels de comparaison avec le shell
+
+---
+
+## Phase 6 : BONUS (optionnel, 2-3 jours)
+
+### ⚠️ À faire SEULEMENT si la partie obligatoire est parfaite
+
+### Bonus 1 : Here_doc
+
+```bash
+./pipex here_doc LIMITER cmd1 cmd2 outfile
+# Équivalent à :  cmd1 << LIMITER | cmd2 >> outfile
+```
+
+**Différences :**
+- Lire depuis stdin jusqu'à trouver LIMITER
+- Utiliser `>>` (append) au lieu de `>` pour outfile
+- Pas besoin de infile
+
+### Bonus 2 : Pipes multiples
+
+```bash
+./pipex infile cmd1 cmd2 cmd3 ...  cmdn outfile
+# Équivalent à : < infile cmd1 | cmd2 | cmd3 | ... | cmdn > outfile
+```
+
+**Implémentation :**
+- Boucle sur les commandes
+- Créer un nouveau pipe pour chaque commande intermédiaire
+- Gérer les redirections en chaîne
+
+### Pourquoi faire les bonus ?
+
+- Compréhension plus profonde des pipes
+- Pratique de la gestion dynamique de processus
+- Points supplémentaires
+- **MAIS** : Ne commence QUE si la partie obligatoire est à 100%
+
+---
+
+## 🎯 Conseils stratégiques
+
+### 1. Teste au fur et à mesure
+- N'attends pas d'avoir tout écrit pour tester
+- Compile après chaque fonction
+- Vérifie avec valgrind régulièrement
+
+### 2. Utilise Git
+```bash
+git init
+git add .
+git commit -m "Phase 1: parsing done"
+git commit -m "Phase 2: basic execution works"
+```
+
+### 3. Compare avec le shell
+- Ton programme DOIT donner le même résultat que le shell
+- Même codes de sortie (`echo $?`)
+- Même messages d'erreur (format identique)
+
+### 4. Ne cherche pas la perfection du premier coup
+- **Version 1 :** Ça marche
+- **Version 2 :** Gestion d'erreur
+- **Version 3 :** Optimisation et norme
+
+### 5. Debugging
+```bash
+# Voir tous les appels système
+strace ./pipex infile "ls" "wc" outfile
+
+# Voir les file descriptors ouverts
+lsof -p <PID>
+
+# Memory leaks
+valgrind --leak-check=full --show-leak-kinds=all ./pipex ... 
+```
+
+### 6. Norminette
+- Vérifie la norme AVANT de soumettre
+- `norminette srcs/ includes/`
+
+### 7. Demande de l'aide
+- Pair programming avec un camarade
+- Revue de code
+- Les pairs de 42 sont une ressource inestimable
+
+---
+
+## ⏱️ Timeline estimée
+
+| Phase | Durée estimée | Checkpoint |
+|-------|---------------|------------|
+| Phase 1 :  Concepts | 1-2 jours | Tu comprends fork, pipe, dup2, execve |
+| Phase 2 :  Architecture | 2-3 jours | Parsing fonctionne, structure claire |
+| Phase 3 :  Implémentation | 3-4 jours | Cas simple fonctionne (happy path) |
+| Phase 4 : Gestion d'erreurs | 2 jours | Toutes les erreurs gérées, pas de crash |
+| Phase 5 :  Tests | 1-2 jours | Tous les tests passent |
+| **Total partie obligatoire** | **8-12 jours** | **Prêt pour évaluation** |
+| Phase 6 : Bonus | 2-3 jours | Here_doc + multiple pipes |
+| **Total avec bonus** | **10-15 jours** | **125% si tout parfait** |
+
+---
+
+## 📚 Concepts clés à maîtriser
+
+### Appels système essentiels
+
+| Fonction | Usage | Man page |
+|----------|-------|----------|
+| `pipe()` | Créer un pipe (2 FD) | `man 2 pipe` |
+| `fork()` | Créer un processus enfant | `man 2 fork` |
+| `execve()` | Remplacer le processus par une commande | `man 2 execve` |
+| `dup2()` | Dupliquer un FD vers un autre | `man 2 dup2` |
+| `wait()` | Attendre la fin d'un enfant | `man 2 wait` |
+| `open()` | Ouvrir un fichier | `man 2 open` |
+| `close()` | Fermer un FD | `man 2 close` |
+| `access()` | Vérifier les permissions | `man 2 access` |
+
+### Le pipe en détail
+
+Un pipe est un **buffer FIFO** (First In First Out) avec 2 extrémités :
+- `pipe_fd[0]` : lecture (output du pipe)
+- `pipe_fd[1]` : écriture (input du pipe)
+
+**Règle d'or :** Ferme ce que tu n'utilises pas ! 
+
+### Les file descriptors
+
+- `0` = STDIN
+- `1` = STDOUT  
+- `2` = STDERR
+
+`dup2(old_fd, new_fd)` : Copie `old_fd` vers `new_fd`
+
+---
+
+## ✅ Checklist finale avant soumission
+
+- [ ] Aucun memory leak (valgrind clean)
+- [ ] Norminette OK sur tous les fichiers
+- [ ] Makefile avec règles :  all, clean, fclean, re
+- [ ] Gestion de toutes les erreurs
+- [ ] Messages d'erreur sur STDERR
+- [ ] Comparaison avec le shell :  résultats identiques
+- [ ] Codes de retour corrects
+- [ ] Testeurs externes passés
+- [ ] Pas de fonctions interdites
+- [ ] Libération de toute la mémoire allouée
+
+---
+
+## 🚀 Prêt à démarrer ?
+
+**Prochaine étape :** Phase 1 - Crée tes programmes de test ! 
+
+Commence par un simple `test_fork.c` :
+```c
+#include <unistd.h>
+#include <stdio.h>
+
+int main(void)
+{
+    pid_t pid = fork();
+    
+    if (pid == 0)
+        printf("Je suis l'enfant (PID: %d)\n", getpid());
+    else
+        printf("Je suis le parent (PID: %d, enfant: %d)\n", getpid(), pid);
+    return (0);
+}
+```
+
+**Bon courage !  💪**
+
+---
+
