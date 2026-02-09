@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/09 12:32:59 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/09 19:16:13 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,67 +83,85 @@ int	unlink(const char *pathname)
 #include <unistd.h>
 #include <fcntl.h>
 
-char	*extract_args(int ac, char **av)
+void	free_struct(t_data *data)
 {
-	char	*arg;
-	int		i;
-	size_t	len;
-	
-	i = 1;
-	len = 0;
-	while (i < ac)
+	free_split(data->env);
+	free_split(data->args);
+	free_split(data->env);
+	free(data->path);
+}
+int	check_path(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (data->env[i])
 	{
-		len += ft_strlen(av[i]);
-		i++;	
-	}
-	arg = malloc(sizeof(char) * (len + 1 + ac));
-	if (!arg)
-		return NULL;
-	arg[0] = '\0';
-	i = 1;
-	while (i < ac)
-	{
-		ft_strlcat(arg, av[i], len + 1);
-		ft_strlcat(arg, "|", len + 1);
+		if(ft_strncmp(data->env[i], "PATH=", 5) == 0)
+		{
+			data->path = ft_strdup(data->env[i]); // Ajouter la verification de la validite du path
+			return (0);
+		}
 		i++;
 	}
-	return (arg);
+	return (1);	
 }
 
-
-
-int	main(int ac, char **av)
+int	struct_attribution(char **av, char**env, t_data *data)
 {
-	char *arg;
-	char **input;
-	
-	if (ac < 5)
+	(void)av;
+	data->env = env;
+	if (!data->env)
+		return (ft_putstr_fd("Error copy env\n", 1),free_split(data->env), 1);
+	data->args = av;
+	if (!data->args)
+		return (ft_putstr_fd("Error copy args\n", 1),free_split(data->args), 1);
+	data->cmd = NULL;
+	if (check_path(data))
+		return (free_struct(data),1);
+	data->in_fd = open(av[1], O_RDONLY);
+	if (data->in_fd < 0)
 		return (1);
-	arg = extract_args(ac, av);
-	input = ft_split(arg, '|');
-	free(arg);
-	free_split(input);
-		return 0;
+	return (0);
 }
-	// int	id;
-	// int	fd[2];
-	// if ( pipe(fd) == -1)
-	// {
-	// 	printf("Erreur openniung the pipe");
-	// 	return (1);
+
+
+int	first_cmd(t_data *data)
+{
+	
+	// dup2(data->in_fd, data->pip[1]);
+	// {		
+	// 	printf("TETET\n");
+
+	// 	if(check_path(data))
+	// 		return(1);
 	// }
-    // id = fork();
-	// if (id == -1)
-	// return (1); // erreur fork
-	// if (id == 0)
-	// {
-	// 	close (fd[0]);
-	// 	// write(fd[1], ); ecrire dans fd1 la valeur de la deuxieme commande 
-	// 	close (fd[1]);
-	// }
-	// else
-	// {
-	// 	close (fd[1]);
-	// 	// write(1,) ecrire sur la sortie stantard le resultat de premiere commande
-	// 	close (fd[0]);
-	// }
+	return (0);
+}
+
+int	main(int ac, char **av, char **env)
+{
+	t_data	data;
+	(void)av;
+	if (ac < 5 || !env)
+		return (1);
+	if (struct_attribution(av, env, &data))
+		return 1;
+	first_cmd(&data);
+
+
+	
+}
+
+
+
+
+/* 
+utiliser excecve pour appliquer la commande 
+trouver le path en utilisant env,
+securiser le chemin avec equivalent de whereis "X"
+"envie -i" enelve lenvie il faut proteger 
+dup2 pour dupliquer sortie et entree
+test avec sleep5
+gerer la creation du fichier de sortie
+ */
