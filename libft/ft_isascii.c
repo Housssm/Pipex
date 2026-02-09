@@ -1,20 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   ft_isascii.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/01/18 14:50:19 by hoel-har         ###   ########.fr       */
+/*   Created: 2025/11/05 16:14:05 by hoel-har          #+#    #+#             */
+/*   Updated: 2025/11/22 16:38:39 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#include "libft.h"
 
-#include "libft/libft.h"
-
-
-
-#endif
+int	ft_isascii(int c)
+{
+	if (c >= 0 && c <= 127)
+		return (1);
+	return (0);
+}
+/*
+#include <stdio.h>
+int main(int ac, char **av)
+{
+	if (ac == 2 )
+		printf("%d",ft_isascii(av[1][0]));
+	else
+		return 0;
+}*/

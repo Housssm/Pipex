@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/01/14 16:36:10 by marvin           ###   ########.fr       */
+/*   Updated: 2026/02/09 12:32:59 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-int	acces(const char *pathname, int mode)
+/* int	acces(const char *pathname, int mode)
 {
 	//CHeck if the program can acces the file pathname
 
@@ -75,4 +75,75 @@ int	unlink(const char *pathname)
 
 	// success = 0, 
 	//Error = -1 and errno set appropriately
+} */
+
+#include <unistd.h>
+#include <stdio.h>
+
+#include <unistd.h>
+#include <fcntl.h>
+
+char	*extract_args(int ac, char **av)
+{
+	char	*arg;
+	int		i;
+	size_t	len;
+	
+	i = 1;
+	len = 0;
+	while (i < ac)
+	{
+		len += ft_strlen(av[i]);
+		i++;	
+	}
+	arg = malloc(sizeof(char) * (len + 1 + ac));
+	if (!arg)
+		return NULL;
+	arg[0] = '\0';
+	i = 1;
+	while (i < ac)
+	{
+		ft_strlcat(arg, av[i], len + 1);
+		ft_strlcat(arg, "|", len + 1);
+		i++;
+	}
+	return (arg);
 }
+
+
+
+int	main(int ac, char **av)
+{
+	char *arg;
+	char **input;
+	
+	if (ac < 5)
+		return (1);
+	arg = extract_args(ac, av);
+	input = ft_split(arg, '|');
+	free(arg);
+	free_split(input);
+		return 0;
+}
+	// int	id;
+	// int	fd[2];
+	// if ( pipe(fd) == -1)
+	// {
+	// 	printf("Erreur openniung the pipe");
+	// 	return (1);
+	// }
+    // id = fork();
+	// if (id == -1)
+	// return (1); // erreur fork
+	// if (id == 0)
+	// {
+	// 	close (fd[0]);
+	// 	// write(fd[1], ); ecrire dans fd1 la valeur de la deuxieme commande 
+	// 	close (fd[1]);
+	// }
+	// else
+	// {
+	// 	close (fd[1]);
+	// 	// write(1,) ecrire sur la sortie stantard le resultat de premiere commande
+	// 	close (fd[0]);
+	// }
