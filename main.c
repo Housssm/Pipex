@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/09 19:16:13 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/11 12:55:09 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,29 +82,91 @@ int	unlink(const char *pathname)
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 void	free_struct(t_data *data)
 {
-	free_split(data->env);
-	free_split(data->args);
-	free_split(data->env);
+	// free_split(data->env);
+	// free_split(data->args);
 	free(data->path);
+	free_split(data->cmd1);
+	free_split(data->cmd2);
+}
+char	*ft_strjoin_three(char *s1, char *s2, char *s3)
+{
+	char	*result;
+	int		i;
+	int		j;
+	int		size;
+
+	size = ft_strlen((char *)s1) + ft_strlen((char *)s2) + ft_strlen((char *)s3);
+	result = malloc(sizeof(char) * (size + 1));
+	if (!result)
+		return (NULL);
+	i = 0 ;
+	j = 0;
+	while (s1[i])
+	{
+		result[i] = s1[i];
+		i++;
+	}
+	while (s2[j])
+		result[i++] = s2[j++];
+	j = 0;
+	while (s3[j])
+		result[i++] = s3[j++];
+	result[i] = '\0';
+	return (result);
+}
+
+int	extract_path(t_data *data, char **full_path)
+{
+	int		i;
+	int		verif;
+	char	*str;
+	
+	i = 0;
+	verif = 1;
+	while(full_path[i])
+	{
+		str = ft_strjoin_three(full_path[i], "/", data->cmd1[0]);
+		if (access(str, F_OK | R_OK ) == 0)
+		{
+			data->path = ft_strdup(full_path[i]);
+			free(str);
+			verif = 0;
+			break;
+		}
+		i++;
+		free(str);
+	}
+	if (verif == 1)
+		return (1);
+	return (0);
 }
 int	check_path(t_data *data)
 {
-	int	i;
+	int		i;
+	char	**full_path;
+	
 
 	i = 0;
+	full_path = NULL;
 	while (data->env[i])
 	{
 		if(ft_strncmp(data->env[i], "PATH=", 5) == 0)
 		{
-			data->path = ft_strdup(data->env[i]); // Ajouter la verification de la validite du path
-			return (0);
+			full_path = ft_split(data->env[i] + 5, ':');
+			break;
 		}
 		i++;
 	}
-	return (1);	
+	if (!full_path)
+		return (free_split(full_path), 1);
+	if (extract_path(data, full_path))
+		return (free_split(full_path), 1);
+	free_split(full_path);
+	return (0);	
 }
 
 int	struct_attribution(char **av, char**env, t_data *data)
@@ -113,31 +175,56 @@ int	struct_attribution(char **av, char**env, t_data *data)
 	data->env = env;
 	if (!data->env)
 		return (ft_putstr_fd("Error copy env\n", 1),free_split(data->env), 1);
-	data->args = av;
-	if (!data->args)
-		return (ft_putstr_fd("Error copy args\n", 1),free_split(data->args), 1);
-	data->cmd = NULL;
+	// data->args = av;
+	// if (!data->args)
+	// 	return (ft_putstr_fd("Error copy args\n", 1),free_split(data->args), 1);
+	data->cmd1 = ft_split(av[2], ' ');
+	data->cmd2 = ft_split(av[3], ' ');
 	if (check_path(data))
 		return (free_struct(data),1);
 	data->in_fd = open(av[1], O_RDONLY);
+	data->out_fd = 1;
 	if (data->in_fd < 0)
 		return (1);
 	return (0);
 }
 
 
-int	first_cmd(t_data *data)
-{
+// int	first_cmd(t_data *data)
+// {
+// 	int	pid1;
+// 	int	pid2;
 	
-	// dup2(data->in_fd, data->pip[1]);
-	// {		
-	// 	printf("TETET\n");
+// 	if (pipe(data->pip) == 1)
+// 		return (free_struct(data), 1);
+// 	pid1 = fork();
+// 	if  (pid1 < 0)
+// 		return (free_struct(data), 2);
+// 	if (pid1 == 0)
+// 	{
+// 		dup2(data->pip[1], STDOUT_FILENO);
+// 		close (data->pip[1]);
+// 		close (data->pip[0]);
+// 		execve(data->path, data->args, data->env);		
+// 	}
+// 	pid2 = fork();
+// 	if (pid2 < 0)
+// 		return (free_struct(data), 3);
+// 	if (pid2 == 0)
+// 	{
+// 		dup2(data->pip[0], STDIN_FILENO);
+// 		close(data->pip[0]);
+// 		close(data->pip[1]);
+// 		execve(data->path, data->args, data->env);
+// 	}
+// 	close(data->pip[0]);
+// 	close(data->pip[1]);
+// 	waitpid(pid1, NULL, 0);
+// 	waitpid(pid2, NULL, 0);
+// 	return (0);
+// }
 
-	// 	if(check_path(data))
-	// 		return(1);
-	// }
-	return (0);
-}
+
 
 int	main(int ac, char **av, char **env)
 {
@@ -147,17 +234,27 @@ int	main(int ac, char **av, char **env)
 		return (1);
 	if (struct_attribution(av, env, &data))
 		return 1;
-	first_cmd(&data);
+	printf("%s\n", data.path);
 
-
-	
+	free_struct(&data);
+	return (0);
 }
-
-
-
-
 /* 
-utiliser excecve pour appliquer la commande 
+creer un pip[2]
+creer un pid 
+dire pid= fork()
+pid < 0 erreur pid == 0 child process, pid == 1 parent process
+path 
+usr/ls
+Lusr/:
+
+// tester chemin dacces
+si dans mon av il y a des / verfier si le chemin na pas ete mit directement
+sinon splitr path avec ":" et tester char string en rajoutant la commande demandee : usr/bin  -> usr/bin/ls
+ dans excec chemin = bin/usr/ls , arg = -ls, env = env
+*/
+/* 
+utiliser excecve pour appliquer la commande et verfier si la c=fonction existe 
 trouver le path en utilisant env,
 securiser le chemin avec equivalent de whereis "X"
 "envie -i" enelve lenvie il faut proteger 

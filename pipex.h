@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/09 17:42:57 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/11 11:51:48 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ typedef struct s_data
 {
 	int		pip[2];
 	char	**args;
-	char	**cmd;
+	char	**cmd1;
+	char	**cmd2;
 	char	**env;
 	char	*path;
 	int		in_fd;
