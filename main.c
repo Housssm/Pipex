@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/11 12:55:09 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/11 17:27:54 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,9 @@ void	free_struct(t_data *data)
 {
 	// free_split(data->env);
 	// free_split(data->args);
-	free(data->path);
+	// free(data->path);
+	free(data->path1);
+	free(data->path2);
 	free_split(data->cmd1);
 	free_split(data->cmd2);
 }
@@ -119,7 +121,7 @@ char	*ft_strjoin_three(char *s1, char *s2, char *s3)
 	return (result);
 }
 
-int	extract_path(t_data *data, char **full_path)
+int	extract_path1(t_data *data, char **full_path)
 {
 	int		i;
 	int		verif;
@@ -132,7 +134,7 @@ int	extract_path(t_data *data, char **full_path)
 		str = ft_strjoin_three(full_path[i], "/", data->cmd1[0]);
 		if (access(str, F_OK | R_OK ) == 0)
 		{
-			data->path = ft_strdup(full_path[i]);
+			data->path1 = ft_strdup(str);
 			free(str);
 			verif = 0;
 			break;
@@ -144,6 +146,34 @@ int	extract_path(t_data *data, char **full_path)
 		return (1);
 	return (0);
 }
+
+
+int	extract_path2(t_data *data, char **full_path)
+{
+	int		i;
+	int		verif;
+	char	*str;
+	
+	i = 0;
+	verif = 1;
+	while(full_path[i])
+	{
+		str = ft_strjoin_three(full_path[i], "/", data->cmd2[0]);
+		if (access(str, F_OK | R_OK ) == 0)
+		{
+			data->path2 = ft_strdup(str);
+			free(str);
+			verif = 0;
+			break;
+		}
+		i++;
+		free(str);
+	}
+	if (verif == 1)
+		return (1);
+	return (0);
+}
+
 int	check_path(t_data *data)
 {
 	int		i;
@@ -163,11 +193,12 @@ int	check_path(t_data *data)
 	}
 	if (!full_path)
 		return (free_split(full_path), 1);
-	if (extract_path(data, full_path))
+	if (extract_path1(data, full_path) || extract_path2(data, full_path))
 		return (free_split(full_path), 1);
 	free_split(full_path);
 	return (0);	
 }
+
 
 int	struct_attribution(char **av, char**env, t_data *data)
 {
@@ -175,55 +206,63 @@ int	struct_attribution(char **av, char**env, t_data *data)
 	data->env = env;
 	if (!data->env)
 		return (ft_putstr_fd("Error copy env\n", 1),free_split(data->env), 1);
-	// data->args = av;
-	// if (!data->args)
-	// 	return (ft_putstr_fd("Error copy args\n", 1),free_split(data->args), 1);
+	data->args = av;
+	if (!data->args)
+		return (ft_putstr_fd("Error copy args\n", 1),free_split(data->args), 1);
 	data->cmd1 = ft_split(av[2], ' ');
 	data->cmd2 = ft_split(av[3], ' ');
 	if (check_path(data))
 		return (free_struct(data),1);
 	data->in_fd = open(av[1], O_RDONLY);
-	data->out_fd = 1;
+	data->out_fd = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (data->in_fd < 0)
 		return (1);
 	return (0);
 }
 
-
-// int	first_cmd(t_data *data)
-// {
-// 	int	pid1;
-// 	int	pid2;
-	
-// 	if (pipe(data->pip) == 1)
-// 		return (free_struct(data), 1);
-// 	pid1 = fork();
-// 	if  (pid1 < 0)
-// 		return (free_struct(data), 2);
-// 	if (pid1 == 0)
-// 	{
-// 		dup2(data->pip[1], STDOUT_FILENO);
-// 		close (data->pip[1]);
-// 		close (data->pip[0]);
-// 		execve(data->path, data->args, data->env);		
-// 	}
-// 	pid2 = fork();
-// 	if (pid2 < 0)
-// 		return (free_struct(data), 3);
-// 	if (pid2 == 0)
-// 	{
-// 		dup2(data->pip[0], STDIN_FILENO);
-// 		close(data->pip[0]);
-// 		close(data->pip[1]);
-// 		execve(data->path, data->args, data->env);
-// 	}
-// 	close(data->pip[0]);
-// 	close(data->pip[1]);
-// 	waitpid(pid1, NULL, 0);
-// 	waitpid(pid2, NULL, 0);
-// 	return (0);
-// }
-
+int	first_cmd(t_data *data)
+{
+    int	pid1;
+    int	pid2;
+    
+    if (pipe(data->pip) == -1)
+        return (free_struct(data), 1);
+    pid1 = fork();
+    if (pid1 < 0)
+        return (free_struct(data), 2);
+    if (pid1 == 0)
+    {
+        dup2(data->in_fd, STDIN_FILENO);
+        dup2(data->pip[1], STDOUT_FILENO);
+        close(data->pip[0]);
+        close(data->pip[1]);
+        close(data->in_fd);
+        execve(data->path1, data->cmd1, data->env);
+        perror("execve cmd1");
+        exit(1);
+    }
+    pid2 = fork();
+    if (pid2 < 0)
+        return (free_struct(data), 3);
+    if (pid2 == 0)
+    {
+        dup2(data->pip[0], STDIN_FILENO);
+        dup2(data->out_fd, STDOUT_FILENO);  // AJOUTÉ
+        close(data->pip[0]);
+        close(data->pip[1]);
+        close(data->out_fd);                 // AJOUTÉ
+        execve(data->path2, data->cmd2, data->env);
+        perror("execve cmd2");
+        exit(1);
+    }
+    close(data->pip[0]);
+    close(data->pip[1]);
+    close(data->in_fd);   // AJOUTÉ
+    close(data->out_fd);  // AJOUTÉ
+    waitpid(pid1, NULL, 0);
+    waitpid(pid2, NULL, 0);
+    return (0);
+}
 
 
 int	main(int ac, char **av, char **env)
@@ -234,8 +273,10 @@ int	main(int ac, char **av, char **env)
 		return (1);
 	if (struct_attribution(av, env, &data))
 		return 1;
-	printf("%s\n", data.path);
-
+	//	return(free_struct(&data), 1);
+	if (first_cmd(&data))
+		return(free_struct(&data), 1);
+		
 	free_struct(&data);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/11 11:51:48 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/11 14:40:03 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,9 @@ typedef struct s_data
 	char	**cmd1;
 	char	**cmd2;
 	char	**env;
-	char	*path;
+	char	*path1;
+	char	*path2;
+	char	*good_path;
 	int		in_fd;
 	int		out_fd;
 	
