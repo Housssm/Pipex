@@ -1,5 +1,6 @@
 SRCS = \
-	main.c 
+	Src/main.c\
+	Src/pipex_utils.c
 
 OBJS = ${SRCS:.c=.o}
 
