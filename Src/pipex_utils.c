@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/16 11:51:08 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/16 19:41:41 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,28 @@ void	free_struct(t_data *data)
 		free_split(data->cmd);
 		data->cmd = NULL;
 	}
+}
+
+void	free_tab(t_data *data)
+{
+	// faire fonction pour free un tableau de char 
+	
+}
+void	free_all_struct(t_data *data)
+{
+	int	i;
+	free_struct(data);
+	if (data->pip)
+	{
+		i = 0;
+		while (i < data->ac)
+		{	
+			free(data->pip[i]);
+			i++;
+		}
+		free (data->pip);
+	}
+	//modifier fonction pour free tablerau de char pip et pid
 }
 
 char	*ft_strjoin_three(char *s1, char *s2, char *s3)
@@ -54,14 +76,29 @@ char	*ft_strjoin_three(char *s1, char *s2, char *s3)
 	return (result);
 }
 
-int	struct_attribution(char **av, char**env, t_data *data)
-{
+int	struct_attribution(int ac, char **av, char**env, t_data *data)
+{	
+	int	i;
+
+	i = 0;
+	data->ac = ac -4;
 	data->env = env;
+	data->pip = malloc(sizeof(int *) * (data->ac));
+	data->pid = malloc(sizeof(int *) * (data->ac));
+	if (!data->pip || !data->pid)
+		return (1); // bien free les deux tableau si pb
+	while ( i < data->ac -1)
+	{
+		data->pip[i] = malloc(sizeof(int) * 2);
+		if (!data->pip[i])
+			return (free_all_struct(data), 1);
+		i++;
+	}
 	if (!data->env)
-		return (ft_putstr_fd("Error copy env\n", 1), 1);
+		return (ft_putstr_fd("Error copy env\n", 2), 1);
 	data->args = av;
 	if (!data->args)
-		return (ft_putstr_fd("Error copy args\n", 1), 1);
+		return (ft_putstr_fd("Error copy args\n", 2), 1);
 	data->cmd = NULL;
 	data->path = NULL;
 	data->in_fd = open(av[1], O_RDONLY);
@@ -94,7 +131,7 @@ int	extract_path(t_data *data, char **full_path, char *av)
 		free(str);
 	}
 	if (verif == 1)
-		return (ft_printf("pipex: command not found: %s\n", data->cmd[0]), 1);
+		return (ft_printf("pipex3: command not found: %s\n", data->cmd[0]), 1);
 	return (0);
 }
 
