@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/12 23:05:46 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/16 11:51:08 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ int	extract_path(t_data *data, char **full_path, char *av)
 		free(str);
 	}
 	if (verif == 1)
-		return (1);
+		return (ft_printf("pipex: command not found: %s\n", data->cmd[0]), 1);
 	return (0);
 }
 
@@ -113,8 +113,7 @@ int	check_existing_path(t_data *data, char *av)
 			return (0);
 		}
 		else if (access(data->cmd[0], F_OK | R_OK) != 0)
-			return (free_split(data->cmd),
-				ft_putstr_fd("Invalide pathway\n", 1), 1);
+			return (ft_printf("pipex: no such file or directory: %s\n", av), 1);
 	}
 	return (0);
 }

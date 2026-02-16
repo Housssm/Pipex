@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/12 23:09:30 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/16 11:33:28 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define PIPEX_H
 
 # include "../libft/libft.h"
+# include "../printf/ft_printf.h"
 # include <unistd.h>
 # include <stdio.h>
 # include <unistd.h>
@@ -36,8 +37,8 @@ typedef struct s_data
 
 void	free_struct(t_data *data);
 char	*ft_strjoin_three(char *s1, char *s2, char *s3);
-int	struct_attribution(char **av, char**env, t_data *data);
-int	extract_path(t_data *data, char **full_path, char *av);
-int	check_existing_path(t_data *data, char *av);
+int		struct_attribution(char **av, char**env, t_data *data);
+int		extract_path(t_data *data, char **full_path, char *av);
+int		check_existing_path(t_data *data, char *av);
 
 #endif
