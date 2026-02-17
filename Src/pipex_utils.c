@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/16 19:41:41 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/17 17:26:18 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,28 +24,32 @@ void	free_struct(t_data *data)
 		free_split(data->cmd);
 		data->cmd = NULL;
 	}
+	if (data->pid)
+	{
+		free(data->pid);
+		data->pid = NULL;
+	}
 }
 
-void	free_tab(t_data *data)
+void	free_tab(t_data *data ,int **array)
 {
-	// faire fonction pour free un tableau de char 
+	size_t	i;
 	
+	i = 0;
+	if (array)
+	{
+		while ( i < data->ac )
+		{
+			free(array[i]);
+			i++;
+		}
+		free(array);
+	}
 }
 void	free_all_struct(t_data *data)
 {
-	int	i;
 	free_struct(data);
-	if (data->pip)
-	{
-		i = 0;
-		while (i < data->ac)
-		{	
-			free(data->pip[i]);
-			i++;
-		}
-		free (data->pip);
-	}
-	//modifier fonction pour free tablerau de char pip et pid
+	free_tab(data, data->pip);
 }
 
 char	*ft_strjoin_three(char *s1, char *s2, char *s3)
@@ -78,7 +82,7 @@ char	*ft_strjoin_three(char *s1, char *s2, char *s3)
 
 int	struct_attribution(int ac, char **av, char**env, t_data *data)
 {	
-	int	i;
+	size_t	i;
 
 	i = 0;
 	data->ac = ac -4;
@@ -86,8 +90,8 @@ int	struct_attribution(int ac, char **av, char**env, t_data *data)
 	data->pip = malloc(sizeof(int *) * (data->ac));
 	data->pid = malloc(sizeof(int *) * (data->ac));
 	if (!data->pip || !data->pid)
-		return (1); // bien free les deux tableau si pb
-	while ( i < data->ac -1)
+		return (ft_putstr_fd("Error malloc array\n", 2), free_all_struct(data), 1);
+	while ( i < data->ac)
 	{
 		data->pip[i] = malloc(sizeof(int) * 2);
 		if (!data->pip[i])

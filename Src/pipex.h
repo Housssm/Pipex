@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/16 19:37:38 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/17 17:13:58 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,14 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <sys/wait.h>
-#define NB_FD = ac - 1
+
 
 typedef struct s_data
 {
-	int		ac;
+	size_t		ac;
 	int		**pip;
+	int		*pid;
 	int		pid1;
-	int		**pid;
 	int		pid2;
 	char	**args;
 	char	**cmd;
