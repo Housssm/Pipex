@@ -6,26 +6,30 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/17 18:05:58 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/18 14:12:34 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-int	check_errors(int ac, char **av, char **env)
+int	check_errors(int ac, char **av, char **env, t_data *data)
 {
-	if (ac != 5)
+	if (ac < 5)
 		return (ft_printf("Missing arguments, it should be like this :"
-				"./pipex infile cmd1 cmd2 outfile\n"), 14);
-	else if ((!env/* && strchr(av[2], '/')) || (!env && strchr(av[3], '/'))*/))
-		// return (ft_printf("Missing environement"), 1);
+				"./pipex infile cmd1 ... cmdn outfile\n"), 14);
+	else if ((!env))
 		return (perror("pipex 1"), 1);
 	else if (access(av[1], F_OK) != 0)
-		// return (ft_printf("pipex: no such file or directory: %s\n", av[1]), 126);
 		return (perror("pipex 2"), 126);
-	else if (access(av[1], R_OK) != 0 || access(av[4], W_OK != 0))
-		return (perror("pipex 3"), 126);
-		// return (ft_printf("pipex: permission denied %s\n", av[1]), 126);
+	else if(access(av[ac -1], F_OK) != 0)
+	{
+		data->out_fd = open(av[ac - 1], W_OK | O_CREAT | O_TRUNC, 0644);
+		if (data->out_fd == - 1)
+			return (perror("pipex 3"), 1);
+		close(data->out_fd);
+	}
+	else if (access(av[1], R_OK) != 0 || access(av[ac -1], W_OK) != 0)
+		return (perror("pipex 4"), 126);
 	return (0);
 }
 
@@ -62,7 +66,16 @@ void	closing_pipes(t_data *data, size_t n)
 	size_t	i;
 
 	i = 0;
-	while (i < data->ac + 1)
+	if (n == (size_t)(-1))
+	{
+		while ( i < data->ac -1)
+		{
+			close(data->pip[i][0]);
+			close(data->pip[i][1]);
+			i++;
+		}
+	}
+	while (i < data->ac)
 	{
 		if (i + 1 != n)
 			close(data->pip[i][0]);
@@ -79,7 +92,7 @@ void	illiterate(t_data *data, size_t n)
 		dup2(data->in_fd, STDIN_FILENO);
 		dup2(data->pip[0][1], STDOUT_FILENO);
 	}
-	if (n == data->ac)
+	else if (n == data->ac)
 	{
 		dup2(data->pip[n - 1][0], STDIN_FILENO);
 		dup2(data->out_fd, STDOUT_FILENO);
@@ -97,24 +110,14 @@ int	pi_opening(t_data *data)
 	size_t	i;
 
 	i = 0;
-	while (i < data->ac + 1)
-	{
-		if (pipe(data->pip[i]) == -1)
-			return(free_all_struct(data), perror("Error"), 1);
-		i++;
-	}
-	i = 0;
 	while (i < data->ac)
 	{
-		data->pid[i] = fork();
-		if (data->pid[i] == -1)
-			return(free_all_struct(data), perror("Error"), 1);
-		i++;	
+		if (pipe(data->pip[i]) == -1)
+			return(printf("pipe =%d\n\n",pipe(data->pip[i])),free_all_struct(data), perror("Error 1"), 1);
+		i++;
 	}
 	return (0);
 }
-
-
 
 
 int	all_good(t_data *data, char *av, size_t n)
@@ -125,20 +128,18 @@ int	all_good(t_data *data, char *av, size_t n)
 	free_struct(data);
 	if (check_path(data, av))
 		return (1);
+	data->pid[n] = fork();
+	if (data->pid[n] == -1)
+		return(free_all_struct(data), perror("Error"), 1);
 	if (data->pid[n] == 0)
 	{
 		closing_pipes(data, n);
 		illiterate(data, n);
 		execve(data->path, data->cmd, data->env);
-		close(data->pip[i][0]);
-		close(data->pip[i + 1][1]);
-		// return (0);
-	}
-	i = 0;
-	while (i < data->ac)
-	{
-		wait(NULL);
-		i++;
+		perror("execve");
+		close(data->pip[n + 1][0]);
+		close(data->pip[n][1]);
+		exit(1);
 	}
 	return (0);
 }
@@ -148,16 +149,23 @@ int	main(int ac, char **av, char **env)
 	size_t		i;
 
 	i = 0;
-	if (check_errors(ac, av, env))
+	if (check_errors(ac, av, env, &data))
 		return (1);
 	if (struct_attribution(ac, av, env, &data))
 		return (1);
 	if  (pi_opening(&data))
 		return (1);
-	while(i < (size_t)ac)
+	while(i < (size_t)ac - 3)
 	{
-		if (all_good(&data, av[i], i))	
-			return (1);
+		if (all_good(&data, av[i + 2], i))	
+			return (free_all_struct(&data), 1);
+		i++;
+	}
+	closing_pipes(&data, -1);
+	i = 0;
+	while (i < (size_t)ac - 3)
+	{
+		waitpid(data.pid[i],NULL, 0);
 		i++;
 	}
 	free_all_struct(&data);

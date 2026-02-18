@@ -1,0 +1,10 @@
+total 64
+drwxr-xr-x 3 hoel-har 2025_paris  4096 Feb 18 14:12 libft
+-rw-r--r-- 1 hoel-har 2025_paris     0 Feb 18 14:12 ls -l
+-rw-r--r-- 1 hoel-har 2025_paris  1354 Feb 16 10:46 Makefile
+-rw-r--r-- 1 hoel-har 2025_paris     0 Feb 18 14:12 outi
+-rwxr-xr-x 1 hoel-har 2025_paris 31992 Feb 18 14:12 pipex
+drwxr-xr-x 2 hoel-har 2025_paris  4096 Feb 18 14:12 printf
+-rw-r--r-- 1 hoel-har 2025_paris 10193 Feb  2 11:53 RoadMap.txt
+drwxr-xr-x 2 hoel-har 2025_paris    91 Feb 18 14:12 Src
+-rw-r--r-- 1 hoel-har 2025_paris     3 Feb 18 13:51  wc -l

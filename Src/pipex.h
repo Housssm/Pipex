@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/17 17:13:58 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/18 13:36:05 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 typedef struct s_data
 {
 	size_t		ac;
-	int		**pip;
+	pid_t		**pip;
 	int		*pid;
 	int		pid1;
 	int		pid2;

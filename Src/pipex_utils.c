@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/17 17:26:18 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/18 13:36:50 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,6 @@ void	free_struct(t_data *data)
 	{
 		free_split(data->cmd);
 		data->cmd = NULL;
-	}
-	if (data->pid)
-	{
-		free(data->pid);
-		data->pid = NULL;
 	}
 }
 
@@ -49,6 +44,11 @@ void	free_tab(t_data *data ,int **array)
 void	free_all_struct(t_data *data)
 {
 	free_struct(data);
+	if (data->pid)
+	{
+		free(data->pid);
+		data->pid = NULL;
+	}
 	free_tab(data, data->pip);
 }
 
@@ -88,7 +88,8 @@ int	struct_attribution(int ac, char **av, char**env, t_data *data)
 	data->ac = ac -4;
 	data->env = env;
 	data->pip = malloc(sizeof(int *) * (data->ac));
-	data->pid = malloc(sizeof(int *) * (data->ac));
+	data->pid = ft_calloc(ac -3, sizeof(pid_t));
+	// data->pid = malloc(sizeof(int) * (data->ac));
 	if (!data->pip || !data->pid)
 		return (ft_putstr_fd("Error malloc array\n", 2), free_all_struct(data), 1);
 	while ( i < data->ac)
@@ -117,16 +118,19 @@ int	extract_path(t_data *data, char **full_path, char *av)
 	int		i;
 	int		verif;
 	char	*str;
-
 	i = 0;
 	verif = 1;
 	data->cmd = ft_split(av, ' ');
+	if (!data->cmd)
+		return (free_all_struct(data), 1);
 	while (full_path[i])
 	{
 		str = ft_strjoin_three(full_path[i], "/", data->cmd[0]);
 		if (access(str, F_OK | R_OK) == 0)
 		{
 			data->path = ft_strdup(str);
+			if (!data->path)
+				return (free_all_struct(data), 1);
 			free(str);
 			verif = 0;
 			break ;
