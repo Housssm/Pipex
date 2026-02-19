@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/18 13:36:05 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/19 10:06:46 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,11 @@
 # include <fcntl.h>
 # include <sys/wait.h>
 
-
 typedef struct s_data
 {
-	size_t		ac;
-	pid_t		**pip;
+	size_t	ac;
+	pid_t	**pip;
 	int		*pid;
-	int		pid1;
-	int		pid2;
 	char	**args;
 	char	**cmd;
 	char	**env;
@@ -44,5 +41,8 @@ int		struct_attribution(int ac, char **av, char**env, t_data *data);
 int		extract_path(t_data *data, char **full_path, char *av);
 int		check_existing_path(t_data *data, char *av);
 void	free_all_struct(t_data *data);
+void	closing_pipes(t_data *data, size_t n);
+int		check_errors(int ac, char **av, char **env, t_data *data);
+int		check_path(t_data *data, char *av);
 
 #endif

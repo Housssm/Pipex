@@ -5,12 +5,37 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/19 09:38:55 by hoel-har         ###   ########.fr       */
+/*   Created: 2026/02/19 09:42:16 by hoel-har          #+#    #+#             */
+/*   Updated: 2026/02/19 10:01:46 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
+void	closing_pipes(t_data *data, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	if (n == (size_t)(-1))
+	{
+		while (i < data->ac - 1)
+		{
+			close(data->pip[i][0]);
+			close(data->pip[i][1]);
+			i++;
+		}
+		return ;
+	}
+	while (i < data->ac - 1)
+	{
+		if (i + 1 != n)
+			close(data->pip[i][0]);
+		if (i != n)
+			close (data->pip[i][1]);
+		i++;
+	}
+}
 
 void	free_struct(t_data *data)
 {
@@ -26,14 +51,14 @@ void	free_struct(t_data *data)
 	}
 }
 
-void	free_tab(t_data *data ,int **array)
+void	free_tab(t_data *data, int **array)
 {
 	size_t	i;
-	
+
 	i = 0;
 	if (array)
 	{
-		while ( i < data->ac - 1)
+		while (i < data->ac - 1)
 		{
 			free(array[i]);
 			i++;
@@ -41,6 +66,7 @@ void	free_tab(t_data *data ,int **array)
 		free(array);
 	}
 }
+
 void	free_all_struct(t_data *data)
 {
 	free_struct(data);
@@ -78,94 +104,4 @@ char	*ft_strjoin_three(char *s1, char *s2, char *s3)
 		result[i++] = s3[j++];
 	result[i] = '\0';
 	return (result);
-}
-
-int	pi_intialisation(t_data *data)
-{
-	size_t	i;
-
-	i = 0;
-	data->pip = malloc(sizeof(int *) * (data->ac - 1));
-	data->pid = ft_calloc(data->ac, sizeof(pid_t));
-	if (!data->pip || !data->pid)
-		return (ft_putstr_fd("Error malloc array\n", 2), free_all_struct(data), 1);
-	while ( i < data->ac - 1)
-	{
-		data->pip[i] = malloc(sizeof(int) * 2);
-		if (!data->pip[i])
-			return (free_all_struct(data), 1);
-		i++;
-	}
-	return (0);
-}
-
-int	struct_attribution(int ac, char **av, char**env, t_data *data)
-{	
-	data->ac = ac - 3;
-	data->env = env;
-	if (pi_intialisation(data))
-		return (1);
-	if (!data->env)
-		return (ft_putstr_fd("Error copy env\n", 2), 1);
-	data->args = av;
-	if (!data->args)
-		return (ft_putstr_fd("Error copy args\n", 2), 1);
-	data->cmd = NULL;
-	data->path = NULL;
-	data->in_fd = open(av[1], O_RDONLY);
-	if (data->in_fd == -1)
-		return (free_all_struct(data), perror("pipex infile"), 1);
-	data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (data->out_fd == -1)
-		return (close(data->in_fd), free_all_struct(data), perror("pipex outfile"), 1);	
-	return (0);
-}
-
-int	extract_path(t_data *data, char **full_path, char *av)
-{
-	int		(i) = 0;
-	int		(verif) = 0;
-	char	*str;
-	
-	data->cmd = ft_split(av, ' ');
-	if (!data->cmd)
-		return (free_all_struct(data), 1);
-	while (full_path[i])
-	{
-		str = ft_strjoin_three(full_path[i], "/", data->cmd[0]);
-		if (access(str, F_OK | R_OK) == 0)
-		{
-			data->path = ft_strdup(str);
-			if (!data->path)
-				return (free_all_struct(data), 1);
-			free(str);
-			verif = 0;
-			break ;
-		}
-		i++;
-		free(str);
-	}
-	if (verif == 1)
-		return (ft_printf("pipex3: command not found: %s\n", data->cmd[0]), 1);
-	return (0);
-}
-
-int	check_existing_path(t_data *data, char *av)
-{	
-	if (ft_strchr(av, '/'))
-	{
-		data->cmd = ft_split(av, ' ');
-		if (!data->cmd)
-			return (1);
-		if (access(data->cmd[0], F_OK | R_OK) == 0)
-		{
-			data->path = ft_strdup(data->cmd[0]);
-			if (!data->path)
-				return (free_split(data->cmd), 1);
-			return (0);
-		}
-		else if (access(data->cmd[0], F_OK | R_OK) != 0)
-			return (ft_printf("pipex: no such file or directory: %s\n", av), 1);
-	}
-	return (0);
 }
