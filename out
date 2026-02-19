@@ -1,0 +1,7 @@
+total 48
+drwxr-xr-x 3 hoel-har 2025_paris  4096 Feb 19 09:39 libft
+-rw-r--r-- 1 hoel-har 2025_paris  1354 Feb 16 10:46 Makefile
+-rw-r--r-- 1 hoel-har 2025_paris     0 Feb 19 09:39 out
+-rwxr-xr-x 1 hoel-har 2025_paris 32256 Feb 19 09:39 pipex
+drwxr-xr-x 2 hoel-har 2025_paris  4096 Feb 19 09:39 printf
+drwxr-xr-x 2 hoel-har 2025_paris    91 Feb 19 09:39 Src

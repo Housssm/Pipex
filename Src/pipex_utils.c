@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/18 13:36:50 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/19 09:38:55 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	free_tab(t_data *data ,int **array)
 	i = 0;
 	if (array)
 	{
-		while ( i < data->ac )
+		while ( i < data->ac - 1)
 		{
 			free(array[i]);
 			i++;
@@ -80,25 +80,31 @@ char	*ft_strjoin_three(char *s1, char *s2, char *s3)
 	return (result);
 }
 
-int	struct_attribution(int ac, char **av, char**env, t_data *data)
-{	
+int	pi_intialisation(t_data *data)
+{
 	size_t	i;
 
 	i = 0;
-	data->ac = ac -4;
-	data->env = env;
-	data->pip = malloc(sizeof(int *) * (data->ac));
-	data->pid = ft_calloc(ac -3, sizeof(pid_t));
-	// data->pid = malloc(sizeof(int) * (data->ac));
+	data->pip = malloc(sizeof(int *) * (data->ac - 1));
+	data->pid = ft_calloc(data->ac, sizeof(pid_t));
 	if (!data->pip || !data->pid)
 		return (ft_putstr_fd("Error malloc array\n", 2), free_all_struct(data), 1);
-	while ( i < data->ac)
+	while ( i < data->ac - 1)
 	{
 		data->pip[i] = malloc(sizeof(int) * 2);
 		if (!data->pip[i])
 			return (free_all_struct(data), 1);
 		i++;
 	}
+	return (0);
+}
+
+int	struct_attribution(int ac, char **av, char**env, t_data *data)
+{	
+	data->ac = ac - 3;
+	data->env = env;
+	if (pi_intialisation(data))
+		return (1);
 	if (!data->env)
 		return (ft_putstr_fd("Error copy env\n", 2), 1);
 	data->args = av;
@@ -107,19 +113,20 @@ int	struct_attribution(int ac, char **av, char**env, t_data *data)
 	data->cmd = NULL;
 	data->path = NULL;
 	data->in_fd = open(av[1], O_RDONLY);
-	data->out_fd = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (data->in_fd < 0)
-		return (1);
+	if (data->in_fd == -1)
+		return (free_all_struct(data), perror("pipex infile"), 1);
+	data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (data->out_fd == -1)
+		return (close(data->in_fd), free_all_struct(data), perror("pipex outfile"), 1);	
 	return (0);
 }
 
 int	extract_path(t_data *data, char **full_path, char *av)
 {
-	int		i;
-	int		verif;
+	int		(i) = 0;
+	int		(verif) = 0;
 	char	*str;
-	i = 0;
-	verif = 1;
+	
 	data->cmd = ft_split(av, ' ');
 	if (!data->cmd)
 		return (free_all_struct(data), 1);
