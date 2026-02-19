@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/19 10:06:37 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/19 15:16:13 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int	cmd_excecution(t_data *data, char *av, size_t n)
 {
 	free_struct(data);
 	if (check_path(data, av))
-		return (1);
+		return (closing_pipes(data, -1), 1);
 	data->pid[n] = fork();
 	if (data->pid[n] == -1)
 		return (free_all_struct(data), perror("Error"), 1);
@@ -72,8 +72,8 @@ int	cmd_excecution(t_data *data, char *av, size_t n)
 		closing_pipes(data, n);
 		choose_dup(data, n);
 		execve(data->path, data->cmd, data->env);
-		perror("execve");
-		exit(1);
+		(closing_pipes(data, -1), free_all_struct(data), perror("execve"));
+		exit(127);
 	}
 	return (0);
 }

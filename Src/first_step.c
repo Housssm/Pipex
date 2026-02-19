@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/19 10:05:46 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/19 15:17:38 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	extract_path(t_data *data, char **full_path, char *av)
 	char	*str;
 
 	int (i) = 0;
-	int (verif) = 0;
+	int (verif) = 1;
 	data->cmd = ft_split(av, ' ');
 	if (!data->cmd)
 		return (free_all_struct(data), 1);

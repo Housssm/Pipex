@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 09:42:16 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/19 10:01:46 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/19 15:10:14 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,10 @@ void	closing_pipes(t_data *data, size_t n)
 	{
 		while (i < data->ac - 1)
 		{
-			close(data->pip[i][0]);
-			close(data->pip[i][1]);
+			if (data->pip[i][0])
+				close(data->pip[i][0]);
+			if (data->pip[i][1])
+				close(data->pip[i][1]);
 			i++;
 		}
 		return ;
@@ -76,6 +78,8 @@ void	free_all_struct(t_data *data)
 		data->pid = NULL;
 	}
 	free_tab(data, data->pip);
+	close(data->in_fd);
+	close(data->out_fd);
 }
 
 char	*ft_strjoin_three(char *s1, char *s2, char *s3)
