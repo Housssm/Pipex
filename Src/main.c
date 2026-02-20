@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/19 15:16:13 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/20 12:11:51 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,13 +83,15 @@ int	main(int ac, char **av, char **env)
 	t_data		data;
 	size_t		i;
 
-	i = 0;
+	// if ((i = is_heredoc(ac, av, env, &data)))
+	// 	return (i);
 	if (check_errors(ac, av, env, &data))
 		return (1);
-	if (struct_attribution(ac, av, env, &data))
+	if (struct_attribution(ac, av, env, &data, 0))
 		return (1);
 	if (pi_opening(&data))
 		return (1);
+	i = 0;
 	while (i < (size_t)ac - 3)
 	{
 		if (cmd_excecution(&data, av[i + 2], i))
