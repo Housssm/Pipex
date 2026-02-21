@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 11:03:57 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/01/26 15:18:33 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:40:44 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	add_to_stash(t_list **lst, char *buffer)
 	if (*lst == NULL)
 	{
 		(*lst) = (t_list *)malloc(sizeof(t_list));
-		if (!lst)
+		if (!(*lst))
 			return ;
 		(*lst)->content = buffer;
 		(*lst)->next = NULL;
@@ -43,7 +43,7 @@ void	read_to_stash(t_list **lst, int fd)
 	bytes_reads = 1;
 	while (bytes_reads > 0)
 	{
-		buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+		buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
 		if (!buffer)
 			return ;
 		bytes_reads = read(fd, buffer, BUFFER_SIZE);
@@ -124,7 +124,7 @@ char	*get_next_line(int fd)
 	char			*result;
 
 	if (fd < 0)
-		clean_all(&head);
+		return (clean_all(&head), NULL);
 	result = NULL;
 	if (!head || !is_new_line((char *)head->content, '\n'))
 		read_to_stash(&head, fd);
