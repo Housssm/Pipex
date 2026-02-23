@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/21 13:54:04 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 07:55:05 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,12 +85,10 @@ int	main(int ac, char **av, char **env)
 	size_t		j;
 
 	if(check_is_heredoc(ac, av, &data))
-		return (1);
-	if (data.is_heredoc != 0)
-		return (0);
+		return (1);	
 	if (check_errors(ac, av, env, &data))
 		return (1);
-	if (struct_attribution(ac, av, env, &data))
+	if (struct_attribution(ac, av, env, &data, data.is_heredoc))
 		return (1);
 	if (pi_opening(&data))
 		return (1);

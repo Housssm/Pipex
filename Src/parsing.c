@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 10:02:20 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/21 13:54:31 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 07:23:04 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,10 @@ int	check_env(char **env)
 
 int	check_errors(int ac, char **av, char **env, t_data *data)
 {	
-	data->is_heredoc = 0;
 	if (ac < 5)
-		return (ft_printf("Missing arguments, it should be like this :"
-				"./pipex infile cmd1 ... cmdn outfile\n"), 14);
+		return (ft_printf("Missing arguments"), 14);
 	else if (check_env(env))
 		return (perror("pipex 1"), 1);
-	// if (check_is_heredoc(ac, av, data))
-	// 		return (1);
 	if (data->is_heredoc == 1)
 			return (0);
 	else if (access(av[1], F_OK) != 0)
@@ -76,64 +72,65 @@ int	pi_intialisation(t_data *data)
 	return (0);
 }
 
-int	struct_attribution(int ac, char **av, char**env, t_data *data)
-{
-	data->env = env;
-	if (!data->env)
-		return (ft_putstr_fd("Error copy env\n", 2), 1);	
-	if (data->is_heredoc == 1)
-	{
-		data->ac = 2;
-		data->in_fd = open(".heredoc_tmp", O_RDONLY);
-		data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
-	}
-	else
-	{
-		data->ac = ac - 3;
-		data->in_fd = open(av[1], O_RDONLY);
-		data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	}
-	if (data->out_fd == -1 || data->in_fd == - 1)
-		return (close(data->in_fd), free_all_struct(data),
-			perror("pipex"), 1);
-	data->cmd = NULL;
-	data->path = NULL;
-	if (pi_intialisation(data))
-		return (1);
-	data->args = av;
-	if (!data->args)
-		return (ft_putstr_fd("Error copy args\n", 2), 1);
-	return (0);
-}
-
-
-// int	struct_attribution(int ac, char **av, char**env, t_data *data, int p)
-// {	
-// 	data->ac = ac - 3;
-// 	if ( p == 0)
-// 		data->ac = 2;
+// int	struct_attribution(int ac, char **av, char**env, t_data *data)
+// {
 // 	data->env = env;
-// 	if (pi_intialisation(data))
-// 		return (1);
 // 	if (!data->env)
-// 		return (ft_putstr_fd("Error copy env\n", 2), 1);
-// 	data->args = av;
-// 	if (!data->args)
-// 		return (ft_putstr_fd("Error copy args\n", 2), 1);
-// 	data->cmd = NULL;
-// 	data->path = NULL;
-// 	if (p == 0)
+// 		return (ft_putstr_fd("Error copy env\n", 2), 1);	
+// 	if (data->is_heredoc == 1)
 // 	{
+// 		data->ac = 2;
 // 		data->in_fd = open(".heredoc_tmp", O_RDONLY);
 // 		data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
 // 	}
-// 	else 
+// 	else
 // 	{
+// 		data->ac = ac - 3;
 // 		data->in_fd = open(av[1], O_RDONLY);
 // 		data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 // 	}
 // 	if (data->out_fd == -1 || data->in_fd == - 1)
 // 		return (close(data->in_fd), free_all_struct(data),
-// 			perror("pipex outfile"), 1);
+// 			perror("pipex"), 1);
+// 	data->cmd = NULL;
+// 	data->path = NULL;
+// 	printf("data->ac: %zu\n\n\n", data->ac);
+// 	if (pi_intialisation(data))
+// 		return (1);
+// 	data->args = av;
+// 	if (!data->args)
+// 		return (ft_putstr_fd("Error copy args\n", 2), 1);
 // 	return (0);
 // }
+
+
+int	struct_attribution(int ac, char **av, char**env, t_data *data, int p)
+{	
+	data->ac = ac - 3;
+	if ( p == 1)
+		data->ac = 2;
+	data->env = env;
+	if (pi_intialisation(data))
+		return (1);
+	if (!data->env)
+		return (ft_putstr_fd("Error copy env\n", 2), 1);
+	data->args = av;
+	if (!data->args)
+		return (ft_putstr_fd("Error copy args\n", 2), 1);
+	data->cmd = NULL;
+	data->path = NULL;
+	if (p == 1)
+	{
+		data->in_fd = open(".heredoc_tmp", O_RDONLY);
+		data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+	}
+	else 
+	{
+		data->in_fd = open(av[1], O_RDONLY);
+		data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	}
+	if (data->out_fd == -1 || data->in_fd == - 1)
+		return (close(data->in_fd), free_all_struct(data),
+			perror("pipex outfile"), 1);
+	return (0);
+}
