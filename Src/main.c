@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/23 12:44:43 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 15:07:37 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@ void	choose_dup(t_data *data, size_t n)
 		close(data->in_fd);
 		close(data->out_fd);
 		dup2(data->pip[n][1], STDOUT_FILENO);
+		close(data->pip[n][1]);
 	}
 	else if (n == (data->ac - 1))
 	{
 		dup2(data->pip[n - 1][0], STDIN_FILENO);
+		close(data->pip[n - 1][0]);
 		dup2(data->out_fd, STDOUT_FILENO);
 		close(data->out_fd);
 		close(data->in_fd);
@@ -31,7 +33,9 @@ void	choose_dup(t_data *data, size_t n)
 	else
 	{
 		dup2(data->pip[n -1][0], STDIN_FILENO);
+		close(data->pip[n - 1][0]);
 		dup2(data->pip[n][1], STDOUT_FILENO);
+		close(data->pip[n][1]);
 		close(data->out_fd);
 		close(data->in_fd);
 	}
@@ -56,6 +60,7 @@ int	cmd_excecution(t_data *data, char *av, size_t n)
 	free_struct(data);
 	if (check_path(data, av))
 	{
+		data->pid[n] = -1;
 		return (1);
 	}
 	data->pid[n] = fork();
@@ -63,41 +68,26 @@ int	cmd_excecution(t_data *data, char *av, size_t n)
 		return (free_all_struct(data), perror("Error"), 1);
 	if (data->pid[n] == 0)
 	{
-		printf("\n\nCHILDS%zu\n\n", n);
 		closing_pipes(data, n);
 		choose_dup(data, n);
-		if (execve(data->path, data->cmd, data->env) == -1)
-		{
-			ft_putstr_fd("\n\nInside error execve\n\n", 1);
-			closing_pipes(data, -1);
-			free_all_struct(data);
-			perror("execve");
-			exit(127);
-		}
-	}
-	else if (data->pid[n] > 0)
-	{
-		printf("\n\nparent\n\n");
-		close(data->in_fd);
-		close(data->out_fd);
-		wait_for_pid(data);
+		execve(data->path, data->cmd, data->env);
+		closing_pipes(data, -1);
+		free_all_struct(data);
+		perror("execve");
+		exit(127);
 	}
 	return (0);
 }
 	
-int	run_execution(char **av, t_data *data, int i)
+void	run_execution(char **av, t_data *data, int i)
 {	
 	size_t	j;
 	
 	if (data->is_heredoc == 1)
-	j = i + 3;
+		j = i + 3;
 	else
-	j = i + 2;
-	if (cmd_excecution(data, av[j], i))
-	{
-		return (1);
-	}
-	return (0);
+		j = i + 2;
+	cmd_excecution(data, av[j], i);
 }
 
 int	main(int ac, char **av, char **env)
@@ -116,15 +106,16 @@ int	main(int ac, char **av, char **env)
 	i = 0;
 	while (i < data.ac)
 	{
-		if (run_execution(av, &data, i))
-			break ;
+		run_execution(av, &data, i);
 		i++;
 	}
-	ft_putstr_fd("\n\nTEST FIN\n\n", 2);
-	// close(data.in_fd);
-	// close(data.out_fd);
-	// wait_for_pid(&data);
 	closing_pipes(&data, -1);
+	close(data.in_fd);
+	close(data.out_fd);
+	wait_for_pid(&data);
 	free_all_struct(&data);
 	return (0);
 }
+
+
+//machine state et hawk 

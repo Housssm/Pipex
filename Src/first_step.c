@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/23 10:57:40 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 15:15:20 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ int	extract_path(t_data *data, char **full_path, char *av)
 	data->cmd = ft_split(av, ' ');
 	if (!data->cmd)
 		return (free_all_struct(data), 1);
+	if (data->cmd[0] == (void *)0)
+		return (1);
 	while (full_path[i])
 	{	
 		str = ft_strjoin_three(full_path[i], "/", data->cmd[0]);
@@ -97,7 +99,8 @@ void	wait_for_pid(t_data *data)
 	i = 0;
 	while (i < data->ac)
 	{
-		waitpid(data->pid[i], NULL, 0);
+		if (data->pid[i] > 0)
+			waitpid(data->pid[i], NULL, 0);
 		i++;
 	}
 }
