@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 09:42:16 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/23 08:53:40 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 09:19:29 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,8 +80,8 @@ void	free_all_struct(t_data *data)
 	free_tab(data, data->pip);
 	close(data->in_fd);
 	close(data->out_fd);
-	// if (data->is_heredoc == 1)
-	// 	unlink(".heredoc_tmp");
+	if (data->is_heredoc == 1)
+		unlink(".heredoc_tmp");
 }
 
 char	*ft_strjoin_three(char *s1, char *s2, char *s3)

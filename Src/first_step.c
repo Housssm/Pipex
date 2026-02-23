@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/23 08:14:53 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 10:57:40 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ int	extract_path(t_data *data, char **full_path, char *av)
 	if (!data->cmd)
 		return (free_all_struct(data), 1);
 	while (full_path[i])
-	{
+	{	
 		str = ft_strjoin_three(full_path[i], "/", data->cmd[0]);
 		if (access(str, F_OK | R_OK) == 0)
 		{
@@ -56,7 +56,8 @@ int	check_existing_path(t_data *data, char *av)
 			return (0);
 		}
 		else if (access(data->cmd[0], F_OK | R_OK) != 0)
-			return (ft_printf("pipex 22: no such file or directory: %s\n", av), 1);
+			return (ft_printf("pipex 22:"
+					"no such file or directory: %s\n", av), 1);
 	}
 	return (0);
 }
@@ -87,4 +88,16 @@ int	check_path(t_data *data, char *av)
 		return (free_split(full_path), 1);
 	free_split(full_path);
 	return (0);
+}
+
+void	wait_for_pid(t_data *data)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < data->ac)
+	{
+		waitpid(data->pid[i], NULL, 0);
+		i++;
+	}
 }
