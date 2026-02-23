@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/23 07:55:05 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 09:13:04 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	choose_dup(t_data *data, size_t n)
 	{
 		dup2(data->in_fd, STDIN_FILENO);
 		close(data->in_fd);
+		close(data->out_fd);//
 		dup2(data->pip[n][1], STDOUT_FILENO);
 	}
 	else if (n == data->ac - 1)
@@ -25,11 +26,14 @@ void	choose_dup(t_data *data, size_t n)
 		dup2(data->pip[n - 1][0], STDIN_FILENO);
 		dup2(data->out_fd, STDOUT_FILENO);
 		close(data->out_fd);
+		close(data->in_fd);//
 	}
 	else
 	{
 		dup2(data->pip[n -1][0], STDIN_FILENO);
 		dup2(data->pip[n][1], STDOUT_FILENO);
+		close(data->out_fd);//
+		close(data->in_fd);//
 	}
 }
 
@@ -50,9 +54,9 @@ int	pi_opening(t_data *data)
 void	wait_for_pid(t_data *data, int ac)
 {
 	size_t	i;
-
+	(void)ac;
 	i = 0;
-	while (i < (size_t)ac - 3)
+	while (i < data->ac)
 	{
 		waitpid(data->pid[i], NULL, 0);
 		i++;
@@ -84,6 +88,7 @@ int	main(int ac, char **av, char **env)
 	size_t		i;
 	size_t		j;
 
+	ft_bzero(&data, sizeof(t_data));
 	if(check_is_heredoc(ac, av, &data))
 		return (1);	
 	if (check_errors(ac, av, env, &data))
@@ -93,7 +98,7 @@ int	main(int ac, char **av, char **env)
 	if (pi_opening(&data))
 		return (1);
 	i = 0;
-	while (i < (size_t)ac - 3)
+	while (i < data.ac)
 	{
 		if (data.is_heredoc == 1)
 			j = i + 3;
@@ -108,5 +113,7 @@ int	main(int ac, char **av, char **env)
 	close(data.out_fd);
 	wait_for_pid(&data, ac);
 	free_all_struct(&data);
+	if (data.is_heredoc == 1)
+		unlink(".heredoc_tmp");
 	return (0);
 }

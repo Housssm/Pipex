@@ -1,13 +1,13 @@
 total 64
-drwxr-xr-x 8 hoel-har 2025_paris   142 Feb 23 07:55 .
+drwxr-xr-x 8 hoel-har 2025_paris   138 Feb 23 09:13 .
 drwxr-xr-x 6 hoel-har 2025_paris    78 Feb 19 13:54 ..
-drwxr-xr-x 8 hoel-har 2025_paris   185 Feb 21 14:12 .git
-drwxr-xr-x 2 hoel-har 2025_paris   172 Feb 23 07:55 GNL
--rw-r--r-- 1 hoel-har 2025_paris     7 Feb 21 14:22 .heredoc_tmp
-drwxr-xr-x 3 hoel-har 2025_paris  4096 Feb 23 07:55 libft
+drwxr-xr-x 8 hoel-har 2025_paris   185 Feb 23 07:56 .git
+drwxr-xr-x 2 hoel-har 2025_paris   172 Feb 23 09:13 GNL
+drwxr-xr-x 3 hoel-har 2025_paris  4096 Feb 23 09:13 libft
 -rw-r--r-- 1 hoel-har 2025_paris  1814 Feb 20 11:49 Makefile
--rw-r--r-- 1 hoel-har 2025_paris     0 Feb 23 07:56 out
--rwxr-xr-x 1 hoel-har 2025_paris 42672 Feb 23 07:55 pipex
-drwxr-xr-x 2 hoel-har 2025_paris  4096 Feb 23 07:55 printf
-drwxr-xr-x 2 hoel-har 2025_paris  4096 Feb 23 07:55 Src
+-rw-r--r-- 1 hoel-har 2025_paris     0 Feb 23 09:13 out
+-rw-r--r-- 1 hoel-har 2025_paris    35 Feb 23 09:13 outclear
+-rwxr-xr-x 1 hoel-har 2025_paris 42760 Feb 23 09:13 pipex
+drwxr-xr-x 2 hoel-har 2025_paris  4096 Feb 23 09:13 printf
+drwxr-xr-x 2 hoel-har 2025_paris  4096 Feb 23 09:13 Src
 drwxr-xr-x 2 hoel-har 2025_paris    75 Jan 18 14:48 .vscode

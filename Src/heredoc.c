@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/20 09:32:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/21 14:11:07 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 08:51:52 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,17 +44,17 @@ int	reading_and_writing(char **av)
 
 int	check_is_heredoc(int ac, char **av, t_data *data)
 {
-	if (ft_strncmp(av[1], "here_doc", ft_strlen(av[1])) != 0)
+	if (ft_strncmp(av[1], "here_doc", 9) != 0)
 		return (data->is_heredoc = 0, 0);
 	if (ac != 6)
 		return (perror("Invalid argument\n"), 1);
-	else if (access(av[ac - 1], F_OK) != 0)
-	{
-		data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
-		if (data->out_fd == -1)
-			return (close(data->out_fd), free_all_struct(data),
-				perror("pipex outfil"), 1);
-	}
+	// else if (access(av[ac - 1], F_OK) != 0)
+	// {
+	// 	data->out_fd = open(av[ac - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+	// 	if (data->out_fd == -1)
+	// 		return (close(data->out_fd), free_all_struct(data),
+	// 			perror("pipex outfil"), 1);
+	// }
 	data->is_heredoc = 1;
 	if (reading_and_writing(av))
 		return (1);

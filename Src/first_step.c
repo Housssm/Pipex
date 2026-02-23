@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/20 09:19:52 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 08:14:53 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int	check_existing_path(t_data *data, char *av)
 			return (0);
 		}
 		else if (access(data->cmd[0], F_OK | R_OK) != 0)
-			return (ft_printf("pipex: no such file or directory: %s\n", av), 1);
+			return (ft_printf("pipex 22: no such file or directory: %s\n", av), 1);
 	}
 	return (0);
 }
