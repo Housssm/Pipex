@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 10:02:20 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/23 15:17:28 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/24 08:29:55 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ int	check_errors(int ac, char **av, char **env, t_data *data)
 		if (data->out_fd == -1)
 			return (close(data->out_fd), free_all_struct(data),
 				perror("pipex outfil"), 1);
+		close(data->out_fd);
 	}
 	else if (access(av[1], R_OK) != 0 || access(av[ac -1], W_OK) != 0)
 		return (perror("pipex 4"), 126);
