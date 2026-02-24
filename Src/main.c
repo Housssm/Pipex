@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:10 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/23 15:07:37 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 15:38:08 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,11 @@ void	choose_dup(t_data *data, size_t n)
 		close(data->pip[n - 1][0]);
 		dup2(data->pip[n][1], STDOUT_FILENO);
 		close(data->pip[n][1]);
-		close(data->out_fd);
-		close(data->in_fd);
+		(close(data->out_fd), close(data->in_fd));
 	}
-	return;
+	return ;
 }
+
 int	pi_opening(t_data *data)
 {
 	size_t	i;
@@ -78,11 +78,11 @@ int	cmd_excecution(t_data *data, char *av, size_t n)
 	}
 	return (0);
 }
-	
+
 void	run_execution(char **av, t_data *data, int i)
 {	
 	size_t	j;
-	
+
 	if (data->is_heredoc == 1)
 		j = i + 3;
 	else
@@ -94,15 +94,15 @@ int	main(int ac, char **av, char **env)
 {
 	t_data		data;
 	size_t		i;
-	
+
 	if (check_is_heredoc(ac, av, &data))
-	return (1);
+		return (1);
 	if (check_errors(ac, av, env, &data))
-	return (1);
+		return (1);
 	if (struct_attribution(ac, av, env, &data))
-	return (1);
+		return (1);
 	if (pi_opening(&data))
-	return (1);
+		return (1);
 	i = 0;
 	while (i < data.ac)
 	{
@@ -117,5 +117,4 @@ int	main(int ac, char **av, char **env)
 	return (0);
 }
 
-
-//machine state et hawk 
+//machine state et hawk

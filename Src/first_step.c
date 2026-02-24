@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 23:05:05 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/23 15:15:20 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/23 15:21:33 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,10 @@ int	extract_path(t_data *data, char **full_path, char *av)
 			data->path = ft_strdup(str);
 			if (!data->path)
 				return (free_all_struct(data), 1);
-			free(str);
-			verif = 0;
+			(free(str), verif = 0);
 			break ;
 		}
-		i++;
-		free(str);
+		(free(str), i++);
 	}
 	if (verif == 1)
 		return (ft_printf("pipex3: command not found: %s\n", data->cmd[0]), 1);
