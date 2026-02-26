@@ -6,16 +6,16 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/14 16:36:48 by marvin            #+#    #+#             */
-/*   Updated: 2026/02/23 11:59:03 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/26 08:40:45 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
-# include "../libft/libft.h"
-# include "../printf/ft_printf.h"
-# include "../GNL/get_next_line.h"
+# include "../Libft/libft/libft.h"
+// # include "../printf/ft_printf.h"
+// # include "../GNL/get_next_line.h"
 # include <unistd.h>
 # include <stdio.h>
 # include <unistd.h>
@@ -46,10 +46,14 @@ void	free_all_struct(t_data *data);
 void	closing_pipes(t_data *data, size_t n);
 int		check_errors(int ac, char **av, char **env, t_data *data);
 int		check_path(t_data *data, char *av);
-int		check_is_heredoc(int ac, char **av, t_data *data);
+int		check_errors(int ac, char **av, char **env, t_data *data);
 int		is_heredoc(int ac, char **av, char **env, t_data *data);
 int		cmd_excecution(t_data *data, char *av, size_t n);
 int		pi_opening(t_data *data);
 void	wait_for_pid(t_data *data);
+void	run_execution(char **av, t_data *data, int i);
+int		check_error_bonus(int ac, char **av, char **env, t_data *data);
+int		check_is_heredoc(int ac, char **av, t_data *data);
+int		check_env(char **env);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/11 12:53:03 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/16 16:50:57 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/24 14:41:58 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include <stdlib.h>
 # include <string.h>
 # include <stdint.h>
+# include "../printf/ft_printf.h"
+# include "../GNL/get_next_line.h"
 
 int		ft_isalpha(int c);
 int		ft_isdigit(int c);

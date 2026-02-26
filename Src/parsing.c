@@ -6,7 +6,7 @@
 /*   By: hoel-har <hoel-har@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/19 10:02:20 by hoel-har          #+#    #+#             */
-/*   Updated: 2026/02/24 08:29:55 by hoel-har         ###   ########.fr       */
+/*   Updated: 2026/02/26 08:16:45 by hoel-har         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ int	check_env(char **env)
 
 int	check_errors(int ac, char **av, char **env, t_data *data)
 {	
-	if (ac < 5)
-		return (ft_printf("Missing arguments\n"), 14);
+	if (ac != 5)
+		return (ft_printf("Check arguments\n"), 14);
 	else if (check_env(env))
 		return (perror("pipex 1"), 1);
 	if (data->is_heredoc == 1)

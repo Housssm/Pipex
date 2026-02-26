@@ -1,21 +1,4 @@
-<!-- 𝓣𝓱𝓲𝓼 𝓹𝓻𝓸𝓳𝓮𝓬𝓽 𝓱𝓪𝓼 𝓫𝓮𝓮𝓷 𝓬𝓻𝓮𝓪𝓽𝓮𝓭 𝓪𝓼 𝓹𝓪𝓻𝓽 𝓸𝓯 𝓽𝓱𝓮 𝟒𝟐 𝓬𝓾𝓻𝓻𝓲𝓬𝓾𝓵𝓾𝓶 𝓫𝔂 <𝓱𝓸𝓮𝓵-𝓱𝓪𝓻>
-
-
-Description :
-Ce projet a pour but de reproduire le fonctionnement de la commande bash < file1 cmd1 | cmd2 > file2 En lisant depuis le fichier infile et en ecrivant dans le fichier outfil.
-Dans un premier temps avec seulement deux commande puis dans un second temps n nombre de commande. 
-Dans un troisieme temps nous avons aussi reproduis le fonctionnemet de la commande heredoc.
-
-Instruction :
-Pour reproduire le comportement de pipe il faut veiller a avoir au minimum un fichier dentree les deux commandes que lont veut executer et enfin le fichier de sortie ou le resultat sera affiche.
-Pour bien utilise heredoc il faut preciser "here_doc" le mot que lon veut utiliser comme limiter, les deux commandes que lon veut appliquer et finir par le fichier de sortie ou le resultat sera stocke.
-
-Ressources :
-Pour ce projet je me suis aide des videos de code vault qui ma permis de comprendre de maniere globale le fonctionnemetn des differents fonctions dont jaurais besoin , jai completer les inforamation en regardant le forum internet develloppez.net qui ma permit de repoondre aux situation plus complexe et plus specifiques que je ne trouvais pas dans lqpproche generale de la premiere ressource.
- -->
-
-
-*This project has been created as part of the 42 curriculum by <hoel-har>.*
+*This project has been created as part of the 42 curriculum by **hoel-har**.*
 
 ## Description
 
